@@ -73,20 +73,27 @@ export class ShaderMaterial extends Material {
     private _textureArrays: { [name: string]: BaseTexture[] } = {};
     private _floats: { [name: string]: number } = {};
     private _ints: { [name: string]: number } = {};
+    private _intsArrays: {[name: string]: Int32Array | Array<number>} = {};
     private _floatsArrays: { [name: string]: number[] } = {};
     private _colors3: { [name: string]: Color3 } = {};
     private _colors3Arrays: { [name: string]: number[] } = {};
     private _colors4: { [name: string]: Color4 } = {};
     private _colors4Arrays: { [name: string]: number[] } = {};
     private _vectors2: { [name: string]: Vector2 } = {};
+    private _intVectors2: { [name: string]: {x: number, y: number} } = {};
     private _vectors3: { [name: string]: Vector3 } = {};
+    private _intVectors3: { [name: string]: {x: number, y: number, z: number} } = {};
     private _vectors4: { [name: string]: Vector4 } = {};
+    private _intVectors4: { [name: string]: {x: number, y: number, z: number, w: number} } = {};
     private _matrices: { [name: string]: Matrix } = {};
     private _matrixArrays: { [name: string]: Float32Array | Array<number> } = {};
     private _matrices3x3: { [name: string]: Float32Array | Array<number> } = {};
     private _matrices2x2: { [name: string]: Float32Array | Array<number> } = {};
+    private _vectors2IntArrays: {[name: string]: Int32Array | Array<number>} = {};
     private _vectors2Arrays: { [name: string]: number[] } = {};
+    private _vectors3IntArrays: {[name: string]: Int32Array | Array<number>} = {};
     private _vectors3Arrays: { [name: string]: number[] } = {};
+    private _vectors4IntArrays: {[name: string]: Int32Array | Array<number>} = {};
     private _vectors4Arrays: { [name: string]: number[] } = {};
     private _cachedWorldViewMatrix = new Matrix();
     private _cachedWorldViewProjectionMatrix = new Matrix();
@@ -240,6 +247,64 @@ export class ShaderMaterial extends Material {
     public setInt(name: string, value: number): ShaderMaterial {
         this._checkUniform(name);
         this._ints[name] = value;
+
+        return this;
+    }
+
+    /**
+     * Sets an int2 value on a uniform variable.
+     * @param name Name of the variable.
+     * @param x First int in int2.
+     * @param y Second int in int2.
+     * @returns the material itself allowing "fluent" like uniform updates
+     */
+    public setInt2(name: string, x: number, y: number): ShaderMaterial {
+        this._checkUniform(name);
+        this._intVectors2[name] = {x, y};
+
+        return this;
+    }
+
+    /**
+     * Sets an int3 value on a uniform variable.
+     * @param name Name of the variable.
+     * @param x First int in int3.
+     * @param y Second int in int3.
+     * @param z Third int in int3.
+     * @returns the material itself allowing "fluent" like uniform updates
+     */
+    public setInt3(name: string, x: number, y: number, z: number): ShaderMaterial {
+        this._checkUniform(name);
+        this._intVectors3[name] = {x, y, z};
+
+        return this;
+    }
+
+    /**
+     * Sets an int3 value on a uniform variable.
+     * @param name Name of the variable.
+     * @param x First int in int4.
+     * @param y Second int in int4.
+     * @param z Third int in int4.
+     * @param w Fourth int in int4.
+     * @returns the material itself allowing "fluent" like uniform updates
+     */
+    public setInt4(name: string, x: number, y: number, z: number, w: number): ShaderMaterial {
+        this._checkUniform(name);
+        this._intVectors4[name] = {x, y, z, w};
+
+        return this;
+    }
+
+    /**
+     * Set an array of ints in the shader.
+     * @param name Define the name of the uniform as defined in the shader
+     * @param value Define the value to give to the uniform
+     * @return the material itself allowing "fluent" like uniform updates
+     */
+    public setInts(name: string, value: Int32Array | Array<number>): ShaderMaterial {
+        this._checkUniform(name);
+        this._intsArrays[name] = value;
 
         return this;
     }
@@ -414,6 +479,19 @@ export class ShaderMaterial extends Material {
     }
 
     /**
+     * Set a ivec2 array in the shader from a number array.
+     * @param name Define the name of the uniform as defined in the shader
+     * @param value Define the value to give to the uniform
+     * @returns the material itself allowing "fluent" like uniform updates
+     */
+    public setIntArray2(name: string, value: Int32Array | Array<number>): ShaderMaterial {
+        this._checkUniform(name);
+        this._vectors2IntArrays[name] = value;
+
+        return this;
+    }
+
+    /**
      * Set a vec2 array in the shader from a number array.
      * @param name Define the name of the uniform as defined in the shader
      * @param value Define the value to give to the uniform
@@ -427,6 +505,19 @@ export class ShaderMaterial extends Material {
     }
 
     /**
+     * Set a ivec3 array in the shader from a number array.
+     * @param name Define the name of the uniform as defined in the shader
+     * @param value Define the value to give to the uniform
+     * @returns the material itself allowing "fluent" like uniform updates
+     */
+    public setIntArray3(name: string, value: Int32Array | Array<number>): ShaderMaterial {
+        this._checkUniform(name);
+        this._vectors3IntArrays[name] = value;
+
+        return this;
+    }
+
+    /**
      * Set a vec3 array in the shader from a number array.
      * @param name Define the name of the uniform as defined in the shader
      * @param value Define the value to give to the uniform
@@ -435,6 +526,19 @@ export class ShaderMaterial extends Material {
     public setArray3(name: string, value: number[]): ShaderMaterial {
         this._checkUniform(name);
         this._vectors3Arrays[name] = value;
+
+        return this;
+    }
+
+    /**
+     * Set a ivec4 array in the shader from a number array.
+     * @param name Define the name of the uniform as defined in the shader
+     * @param value Define the value to give to the uniform
+     * @returns the material itself allowing "fluent" like uniform updates
+     */
+    public setIntArray4(name: string, value: Int32Array | Array<number>): ShaderMaterial {
+        this._checkUniform(name);
+        this._vectors4IntArrays[name] = value;
 
         return this;
     }
@@ -738,41 +842,18 @@ export class ShaderMaterial extends Material {
 
         const effect = effectOverride ?? this.getEffect();
 
-        const uniformBuffers = this._options.uniformBuffers;
-
-        let useSceneUBO = false;
-
-        if (effect && uniformBuffers && uniformBuffers.length > 0 && this.getScene().getEngine().supportsUniformBuffers) {
-            for (let i = 0; i < uniformBuffers.length; ++i) {
-                const bufferName = uniformBuffers[i];
-                switch (bufferName) {
-                    case "Mesh":
-                        if (mesh) {
-                            mesh.getMeshUniformBuffer().bindToEffect(effect, "Mesh");
-                            mesh.transferToEffect(world);
-                        }
-                        break;
-                    case "Scene":
-                        MaterialHelper.FinalizeSceneUbo(this.getScene());
-                        MaterialHelper.BindSceneUniformBuffer(effect, this.getScene().getSceneUniformBuffer());
-                        useSceneUBO = true;
-                        break;
-                }
-            }
-        }
-
         let mustRebind = this.getScene().getCachedMaterial() !== this;
 
         if (effect && mustRebind) {
-            if (!useSceneUBO && this._options.uniforms.indexOf("view") !== -1) {
+            if (this._options.uniforms.indexOf("view") !== -1) {
                 effect.setMatrix("view", this.getScene().getViewMatrix());
             }
 
-            if (!useSceneUBO && this._options.uniforms.indexOf("projection") !== -1) {
+            if (this._options.uniforms.indexOf("projection") !== -1) {
                 effect.setMatrix("projection", this.getScene().getProjectionMatrix());
             }
 
-            if (!useSceneUBO && this._options.uniforms.indexOf("viewProjection") !== -1) {
+            if (this._options.uniforms.indexOf("viewProjection") !== -1) {
                 effect.setMatrix("viewProjection", this.getScene().getTransformMatrix());
                 if (this._multiview) {
                     effect.setMatrix("viewProjectionR", this.getScene()._transformMatrixR);
@@ -812,6 +893,11 @@ export class ShaderMaterial extends Material {
                 effect.setArray(name, this._floatsArrays[name]);
             }
 
+            // Ints
+            for (name in this._intsArrays) {
+                effect.setIntArray(name, this._intsArrays[name] as Int32Array);
+            }
+
             // Color3
             for (name in this._colors3) {
                 effect.setColor3(name, this._colors3[name]);
@@ -833,14 +919,32 @@ export class ShaderMaterial extends Material {
                 effect.setArray4(name, this._colors4Arrays[name]);
             }
 
+            // IntVector2
+            for (name in this._intVectors2) {
+                let {x, y} = this._intVectors2[name];
+                effect.setInt2(name, x, y);
+            }
+
             // Vector2
             for (name in this._vectors2) {
                 effect.setVector2(name, this._vectors2[name]);
             }
 
+            // IntVector3
+            for (name in this._intVectors3) {
+                let {x, y, z} = this._intVectors3[name];
+                effect.setInt3(name, x, y, z);
+            }
+
             // Vector3
             for (name in this._vectors3) {
                 effect.setVector3(name, this._vectors3[name]);
+            }
+
+            // IntVector4
+            for (name in this._intVectors4) {
+                let {x, y, z, w} = this._intVectors4[name];
+                effect.setInt4(name, x, y, z, w);
             }
 
             // Vector4
@@ -868,14 +972,29 @@ export class ShaderMaterial extends Material {
                 effect.setMatrix2x2(name, this._matrices2x2[name]);
             }
 
+            //Vector2IntArray
+            for (name in this._vectors2IntArrays) {
+                effect.setIntArray2(name, this._vectors2IntArrays[name] as Int32Array);
+            }
+
             // Vector2Array
             for (name in this._vectors2Arrays) {
                 effect.setArray2(name, this._vectors2Arrays[name]);
             }
 
+            //Vector3IntArray
+            for (name in this._vectors3IntArrays) {
+                effect.setIntArray3(name, this._vectors3IntArrays[name] as Int32Array);
+            }
+
             // Vector3Array
             for (name in this._vectors3Arrays) {
                 effect.setArray3(name, this._vectors3Arrays[name]);
+            }
+
+            //Vector4IntArray
+            for (name in this._vectors4IntArrays) {
+                effect.setIntArray4(name, this._vectors4IntArrays[name] as Int32Array);
             }
 
             // Vector4Array

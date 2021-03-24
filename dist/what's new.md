@@ -203,6 +203,7 @@
 - Added `waveCount` to `WaterMaterial` used to adjust waves count according to the ground's size where the material is applied on ([julien-moreau](https://github.com/julien-moreau))
 - Alpha test `transparencyMode` no-longer requires a diffuse/albedo texture if `opacityTexture` is present ([metaobjects](https://github.com/metaobjects))
 - Added `hasTexture` override in `MultiMaterial` ([Vampiro](https://github.com/vampiro))
+- Added missing `setInts`, `setIntArray2`, `setIntArray3`, `setIntArray4`, `setInt2`, `setInt3`, `setInt4` methods to `ShaderMaterial`([mrVPetrov](https://github.com/mrVPetrov) 
 
 ### Meshes
 
